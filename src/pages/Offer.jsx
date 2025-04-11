@@ -1,6 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import styles from "./Offer.module.css";
+
+// Common fetch function
+async function fetchData({
+  endpoint = "",
+  method = "GET",
+  query = "",
+  body = null,
+  formData = null,
+}) {
+  const token = Cookies.get("token");
+  if (!token) {
+    throw new Error("Not authenticated");
+  }
+
+  try {
+    const apiUrl = `http://localhost:5001/api/${endpoint}${
+      query ? `?query=${encodeURIComponent(query)}` : ""
+    }`;
+
+    // Configure headers based on whether we're sending JSON or FormData
+    const headers = {
+      authorization: `Bearer ${token}`
+    };
+    
+    // Don't set Content-Type for FormData (browser sets it with boundary)
+    if (!formData) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    const options = {
+      method,
+      headers,
+      credentials: "include",
+      // Use formData if provided, otherwise use JSON body if needed
+      body: formData || (method !== "GET" && body ? JSON.stringify(body) : null),
+    };
+
+    const response = await fetch(apiUrl, options);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Request failed with status ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error; // Re-throw to let components handle errors
+  }
+}
 
 function Offer() {
   const navigate = useNavigate();
@@ -12,6 +63,36 @@ function Offer() {
   });
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
+
+  // Get user's location when component mounts
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { longitude, latitude } = position.coords;
+          setUserLocation({
+            type: 'Point',
+            coordinates: [longitude, latitude]
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setError('Could not access your location. Please enable location services.');
+        }
+      );
+    } else {
+      setError('Geolocation is not supported by your browser');
+    }
+  }, []);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token) {
+      navigate('/login', { state: { from: '/offer' } });
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,40 +136,40 @@ function Offer() {
       setError("Image is required");
       return;
     }
+    if (!userLocation) {
+      setError("Location is required. Please enable location services.");
+      return;
+    }
 
     try {
       setIsSubmitting(true);
       
-      // Create FormData for sending file
-      const submitData = new FormData();
-      submitData.append("title", formData.title);
-      submitData.append("description", formData.description);
-      submitData.append("image", formData.image);
+      // Create FormData with all required fields for a single request
+      const crapFormData = new FormData();
+      crapFormData.append("title", formData.title);
+      crapFormData.append("description", formData.description);
+      crapFormData.append("location", JSON.stringify(userLocation));
       
-      // TODO: Replace with actual API endpoint
-      // For now we'll simulate a successful upload
-      console.log("Submitting data:", formData.title, formData.description, formData.image.name);
+      // The backend expects 'images' as the field name for file uploads
+      crapFormData.append("images", formData.image);
       
-      // Simulate API call delay
-      setTimeout(() => {
-        setIsSubmitting(false);
-        // Simulate successful response with ID
-        const mockCreatedItemId = "new" + Date.now();
-        navigate(`/crap/${mockCreatedItemId}`);
-      }, 1500);
-      
-      // Actual API call would look like this:
-      // const response = await axios.post('http://your-api-url/crap', submitData, {
-      //   headers: {
-      //     'Authorization': `Bearer ${Cookies.get('token')}`,
-      //     'Content-Type': 'multipart/form-data'
-      //   }
-      // });
-      // navigate(`/crap/${response.data.id}`);
+      // Use the common fetch function instead of axios
+      const result = await fetchData({
+        endpoint: "crap",
+        method: "POST",
+        formData: crapFormData,
+      });
+
+      // Navigate to the crap details page or back to homepage
+      if (result && result.data && result.data._id) {
+        navigate(`/crap/${result.data._id}`);
+      } else {
+        navigate('/crap'); // Fallback to crap list page
+      }
       
     } catch (err) {
       setIsSubmitting(false);
-      setError("Failed to upload. Please try again.");
+      setError(err.message || "Failed to upload. Please try again.");
       console.error("Error submitting form:", err);
     }
   };
@@ -151,11 +232,20 @@ function Offer() {
             <img src={preview} alt="Preview" />
           </div>
         )}
+
+        <div className={styles.formGroup}>
+          <label>Location</label>
+          <div className={styles.locationInfo}>
+            {userLocation 
+              ? `Using your current location: [${userLocation.coordinates[0].toFixed(6)}, ${userLocation.coordinates[1].toFixed(6)}]` 
+              : 'Fetching your location...'}
+          </div>
+        </div>
         
         <button 
           type="submit" 
           className={styles.submitButton}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !userLocation}
         >
           {isSubmitting ? "Submitting..." : "Offer Item"}
         </button>
