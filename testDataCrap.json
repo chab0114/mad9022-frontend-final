@@ -1,0 +1,67 @@
+[
+    {
+      "title": "Vintage Wooden Chair",
+      "description": "A slightly worn-out wooden chair, but still sturdy.",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.935242, 40.73061]
+      },
+      "images": [
+        "https://example.com/images/chair.jpg"
+      ],
+      "status": "AVAILABLE",
+      "owner": "67eb4dc4c473cc17aca60d49"
+    },
+    {
+      "title": "Old Smartphone",
+      "description": "An old Android phone with a cracked screen, but functional.",
+      "location": {
+        "type": "Point",
+        "coordinates": [-118.243683, 34.052235]
+      },
+      "images": [
+        "https://example.com/images/phone.jpg"
+      ],
+      "status": "AVAILABLE",
+      "owner": "67eb4dc4c473cc17aca60d49"
+    },
+    {
+      "title": "Coffee Table",
+      "description": "Wooden coffee table with minor scratches but sturdy and functional.",
+      "location": {
+        "type": "Point",
+        "coordinates": [-74.006, 40.7128]
+      },
+      "images": [
+        "https://example.com/images/table.jpg"
+      ],
+      "status": "AVAILABLE",
+      "owner": "67eb4dc4c473cc17aca60d49"
+    },
+    {
+      "title": "Desk Lamp",
+      "description": "A functional desk lamp with adjustable brightness.",
+      "location": {
+        "type": "Point",
+        "coordinates": [-0.127758, 51.507351]
+      },
+      "images": [
+        "https://example.com/images/lamp.jpg"
+      ],
+      "status": "AVAILABLE",
+      "owner": "67eb4dc4c473cc17aca60d49"
+    },
+    {
+      "title": "Bookshelf",
+      "description": "Wooden bookshelf with 5 shelves. Perfect for your book collection.",
+      "location": {
+        "type": "Point", 
+        "coordinates": [-118.25, 34.05]
+      },
+      "images": [
+        "https://example.com/images/bookshelf.jpg"
+      ],
+      "status": "AVAILABLE",
+      "owner": "67eb4dc4c473cc17aca60d49"
+    }
+  ]
