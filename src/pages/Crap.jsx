@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import styles from './Crap.module.css';
-import { fetchCraps } from '../services/api';
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import styles from "./Crap.module.css";
+import { useData } from "../context/DataContext";
+import SearchForm from "../components/SearchForm";
 import defaultCrapImage from '../assets/crap.svg';
 
 function Crap() {
   const [searchParams] = useSearchParams();
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Get data from context provider
+  const { data: items, fetchData } = useData();
   
   const keyword = searchParams.get('keyword') || '';
   const distance = searchParams.get('distance') || '10';
@@ -17,9 +20,7 @@ function Crap() {
     const loadCraps = async () => {
       setLoading(true);
       try {
-        const data = await fetchCraps(keyword, distance);
-        console.log('Data received from API:', data); // For debugging
-        setItems(data);
+        await fetchData(keyword, distance);
         setError(null);
       } catch (error) {
         console.error("Failed to fetch items:", error);
@@ -35,21 +36,16 @@ function Crap() {
   return (
     <div className={styles.crapPage}>
       <h1 className={styles.pageTitle}>Available Items</h1>
-      
-      <div className={styles.searchSummary}>
-        <p>
-          Showing results for: {keyword ? `"${keyword}"` : 'All items'} 
-          within {distance} km
-        </p>
-      </div>
-      
+      <SearchForm />
+      <div className={styles.searchSummary}></div>
+
       {loading ? (
         <div className={styles.loading}>Loading items...</div>
       ) : error ? (
         <div className={styles.error}>{error}</div>
-      ) : items.length > 0 ? (
+      ) : items && items.length > 0 ? (
         <div className={styles.itemsGrid}>
-          {items.map(item => (
+          {items.map((item) => (
             <div key={item._id} className={styles.itemCard}>
               <div className={styles.itemImage}>
                 <img 

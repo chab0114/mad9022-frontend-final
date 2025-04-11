@@ -76,8 +76,15 @@
   background-color: var(--primary-color);
   color: var(--text-color);
 }
+.logoImage {
+  width: 6rem;
+}
 
-/* Media query for responsive design */
+.logoName {
+  display: inline;
+}
+
+/* Media query for responsive design from your branch */
 @media (max-width: 50rem) { 
   .nav {
     flex-direction: column;
