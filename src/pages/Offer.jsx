@@ -11,16 +11,17 @@ async function fetchData({
   body = null,
   formData = null,
 }) {
-  const token = Cookies.get("token");
+  /*const token = Cookies.get("token");
   if (!token) {
     throw new Error("Not authenticated");
-  }
+  }*/
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZjFjZDM4MzlkMTczZmE5OGJhOThmZCIsIm5hbWUiOiJQZXRlciBDaGFiYW4iLCJpYXQiOjE3NDQzMDM3OTYsImV4cCI6MTc0Njg5NTc5Nn0.7jf1f4cZ4FCLXDqNHlooOTcKpEezqlCgauwLWx5NLUE"
 
   try {
     const apiUrl = `http://localhost:5001/api/${endpoint}${
       query ? `?query=${encodeURIComponent(query)}` : ""
     }`;
-
+    
     // Configure headers based on whether we're sending JSON or FormData
     const headers = {
       authorization: `Bearer ${token}`

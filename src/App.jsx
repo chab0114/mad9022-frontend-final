@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Crap from "./pages/Crap";
+import MyCrap from "./pages/MyCrap";
 import Header from "./components/Header";
 import Login from "./pages/Login";
 import Offer from "./pages/Offer";
@@ -18,6 +19,7 @@ function App() {
           <Route path="/crap" element={<Crap />} />
           <Route path="/login" element={<Login />} />
           <Route path="/offer" element={<Offer />} />
+          <Route path="/mine" element={<MyCrap />} />
         </Routes>
       </main>
     </div>
